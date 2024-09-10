@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Pod Viewer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8; /* Light grey-blue background */
+            color: #333; /* Dark grey text */
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #3f51b5; /* Blue header */
+            color: #ffffff;
+            padding: 15px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+        table, th, td {
+            border: 1px solid #c5cae9;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #303f9f; /* Darker blue for headers */
+            color: #ffffff;
+        }
+        tr:nth-child(even) {
+            background-color: #e8eaf6; /* Very light blue for alternating rows */
+        }
+        tr:hover {
+            background-color: #c5cae9; /* Hover effect */
+        }
+        button {
+            background-color: #3f51b5; /* Blue button */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #303f9f; /* Darker blue on hover */
+        }
+        #logs-modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            justify-content: center;
+            align-items: center;
+        }
+        #logs-content {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            position: relative;
+        }
+        #logs-content pre {
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+            word-wrap: break-word;
+        }
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #f44336; /* Red close button hover */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Kubernetes Pod Viewer</h1>
+    </header>
+    <div id="content">
+        <table>
+            <thead>
+                <tr>
+                    <th>Pod Name</th>
+                    <th>Status</th>
+                    <th>Age</th>
+                    <th>Containers</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="pod-list">
+                <!-- Pod rows will be injected here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal for logs -->
+    <div id="logs-modal">
+        <div id="logs-content">
+            <span class="close" onclick="closeLogs()">&times;</span>
+            <h2>Pod Logs</h2>
+            <pre id="logs"></pre>
+        </div>
+    </div>
+
+    <script>
+        async function fetchPods() {
+            try {
+                const response = await fetch('/pods');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const pods = await response.json();
+                const podList = document.getElementById('pod-list');
+                podList.innerHTML = pods.map(pod => `
+                    <tr>
+                        <td>${pod.name}</td>
+                        <td>${pod.status}</td>
+                        <td>${pod.age}</td>
+                        <td>
+                            ${pod.containers.map(container => `${container.name} (${container.image})`).join('<br>')}
+                        </td>
+                        <td>
+                            <button onclick="showLogs('${pod.name}')">
+                                <i class="fas fa-eye"></i> Show Logs
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error fetching pods:', error.message);
+            }
+        }
+
+        async function showLogs(podName) {
+            try {
+                const response = await fetch(`/pods/${podName}/logs`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const logs = await response.text();
+                document.getElementById('logs').textContent = logs;
+                document.getElementById('logs-modal').style.display = 'flex';
+            } catch (error) {
+                console.error('Error fetching logs:', error.message);
+            }
+        }
+
+        function closeLogs() {
+            document.getElementById('logs-modal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of the content
+        document.getElementById('logs-modal').addEventListener('click', (event) => {
+            if (event.target === document.getElementById('logs-modal')) {
+                closeLogs();
+            }
+        });
+
+        function refreshPods() {
+            fetchPods();
+            setTimeout(refreshPods, 5000); // Refresh every 5 seconds
+        }
+
+        document.addEventListener('DOMContentLoaded', refreshPods);
+    </script>
+</body>
+</html>

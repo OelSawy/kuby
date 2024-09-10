@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kuby-deployment
+  namespace: kuby
+  labels:
+    app: kuby
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kuby
+  template:
+    metadata:
+      labels:
+        app: kuby
+    spec:
+      serviceAccountName: kuby-service-account
+      containers:
+      - name: kuby-container
+        image: 905418489216.dkr.ecr.us-east-1.amazonaws.com/kuby/kuby:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NAMESPACE
+          value: "ra7tak-dev"
+        - name: PORT
+          value: "3000"
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: aws-access-key-id
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: aws-secret-access-key
+        - name: AWS_REGION
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: aws-region
+        - name: AWS_OUTPUT_FORMAT
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: aws-output-format

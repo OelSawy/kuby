@@ -1,0 +1,51 @@
+{
+  "name": "kuby",
+  "version": "1.0.0",
+  "description": "web app to view pods and logs in kubernetes cluster",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OelSawy/kuby.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/OelSawy/kuby/issues"
+  },
+  "homepage": "https://github.com/OelSawy/kuby#readme",
+  "dependencies": {
+    "@kubernetes/client-node": "^0.21.0",
+    "assert": "^2.1.0",
+    "aws-sdk": "^2.1691.0",
+    "axios": "^1.7.7",
+    "bl": "^6.0.15",
+    "browserify-fs": "^1.0.0",
+    "browserify-zlib": "^0.2.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "dotenv": "^16.4.5",
+    "esbuild": "^0.23.1",
+    "express": "^4.20.0",
+    "fs": "^0.0.1-security",
+    "http": "^0.0.1-security",
+    "net": "^1.0.2",
+    "node-fetch": "^3.3.2",
+    "path-browserify": "^1.0.1",
+    "querystring": "^0.2.1",
+    "semver": "^7.6.3",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "uniq": "^1.0.1",
+    "url": "^0.11.4",
+    "util": "^0.12.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.4",
+    "webpack-node-externals": "^3.0.0"
+  }
+}
