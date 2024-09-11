@@ -5,3 +5,4 @@ k8s/aws-secrets.yaml
 k8s/service-account.yaml
 k8s/role.yaml
 k8s/role-binding.yaml
+k8s/dashboard-credentials.yaml

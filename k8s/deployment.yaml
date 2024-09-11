@@ -22,10 +22,18 @@ spec:
         ports:
         - containerPort: 3000
         env:
-        - name: NAMESPACE
+        - name: NAMESPACE1
           value: "ra7tak-dev"
+        - name: NAMESPACE2
+          value: "ra7tak"
+        - name: KUBERNETES_SERVICE_HOST
         - name: PORT
           value: "3000"
+        - name: ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: dashboard-credentials
+              key: admin-password
         - name: AWS_ACCESS_KEY_ID
           valueFrom:
             secretKeyRef:
