@@ -18,15 +18,21 @@ spec:
       serviceAccountName: kuby-service-account
       containers:
       - name: kuby-container
-        image: 905418489216.dkr.ecr.us-east-1.amazonaws.com/kuby/kuby:latest
+        image: 905418489216.dkr.ecr.us-east-1.amazonaws.com/kuby/kuby:v3
         ports:
         - containerPort: 3000
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "150m"
         env:
         - name: NAMESPACE1
           value: "ra7tak-dev"
         - name: NAMESPACE2
           value: "ra7tak"
-        - name: KUBERNETES_SERVICE_HOST
         - name: PORT
           value: "3000"
         - name: ADMIN_PASSWORD

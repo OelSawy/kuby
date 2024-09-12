@@ -3,7 +3,7 @@ const express = require('express');
 const AWS = require('aws-sdk');
 const path = require('path');
 const bodyParser = require('body-parser');
-const session = require('express-session'); // Add this
+const session = require('express-session');
 require('dotenv').config();
 
 const app = express();
@@ -17,10 +17,10 @@ app.use(bodyParser.json());
 
 // Add session handling middleware
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'your-secret-key', // Store secret in env variable
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // Set to true if using HTTPS
+    cookie: { secure: false }
 }));
 
 // Simple authentication middleware
@@ -33,10 +33,21 @@ app.use((req, res, next) => {
 
 // Initialize Kubernetes client configuration
 const kc = new k8s.KubeConfig();
+
 if (process.env.KUBERNETES_SERVICE_HOST) {
-    kc.loadFromCluster();
+    try {
+        kc.loadFromCluster();
+        console.log('Loaded Kubernetes config from the cluster.');
+    } catch (err) {
+        console.error('Error loading Kubernetes config from cluster:', err);
+    }
 } else {
-    kc.loadFromDefault();
+    try {
+        kc.loadFromDefault();
+        console.log('Loaded Kubernetes config from default config file.');
+    } catch (err) {
+        console.error('Error loading default Kubernetes config:', err);
+    }
 }
 
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
@@ -69,12 +80,12 @@ app.post('/auth', (req, res) => {
 
 // Example of listing pods in the selected namespace
 async function listPods(req, res) {
-    const namespace = req.query.namespace || defaultNamespace; 
+    const namespace = req.query.namespace || defaultNamespace;
     try {
         const pods = await k8sApi.listNamespacedPod(namespace);
         const podList = pods.body.items.map(pod => ({
             name: pod.metadata.name,
-            status: getPodStatus(pod), 
+            status: getPodStatus(pod),
             age: calculateAge(pod.metadata.creationTimestamp),
             containers: pod.spec.containers.map(container => ({
                 name: container.name,
